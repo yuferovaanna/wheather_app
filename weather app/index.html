@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru-ru">
+<head>
+    <meta charset="utf-8">
+    <title>Погода</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+<body>
+<script>
+    window.onload = function() { 
+        const form = document.forms.weather;
+        
+        async function loadWeather() {
+            let url = "https://api.open-meteo.com/v1/forecast?";
+
+            // Часовой пояс по браузеру
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            url += "&timezone=" + timezone;
+
+            const latitude = form.elements.latitude.value;
+            url += "&latitude=" + latitude;
+
+            const longitude = form.elements.longitude.value;
+            url += "&longitude=" + longitude;
+
+            // Только текущая погода
+            url += "&current_weather=true";
+
+            const response = await fetch(url);
+            const body = await response.json();
+            const { temperature } = body.current_weather;
+            
+            const tempElements = document.getElementsByClassName("temperature");
+            for (let i = 0; i < tempElements.length; i++) {
+                const currentElem = tempElements.item(i);
+                currentElem.innerHTML = "Текущая температура: " + temperature + "°С";
+            }
+        }
+        form.onsubmit = function() { 
+            loadWeather();
+            return false;
+        };
+
+    };
+    
+    
+</script>
+<div class="content-wrapper">
+    <form class="form-weather" name="weather">
+        <div class="form-weather__row">
+            <label for="latitude">Широта</label>
+            <input type="number" step="0.0001" name="latitude" required>
+        </div>
+        <div class="form-weather__row">
+            <label for="longitude">Долгота</label>
+            <input type="number" step="0.0001" name="longitude" required>
+        </div>
+        <div class="form-weather__row">
+            <input type="submit" value="Показать погоду" class="form-weather__submit">
+        </div>
+    </form>
+    <div class="temperature"></div>
+</div>
+</body>
+</html>
